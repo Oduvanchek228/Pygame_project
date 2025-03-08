@@ -2,10 +2,13 @@ import pygame
 
 pygame.init()
 pygame.display.set_caption('Крестики-нолики')
+pygame.mixer.music.load('data/track_1.mp3')
 
 coords = dict()
 ban_list = []
 sign = True
+vol = 0.1
+pygame.mixer.music.set_volume(vol)
 
 
 class Board:
@@ -43,10 +46,18 @@ class Board:
 
 
 size = list(map(int, input('Введите размер клеточного поля: ').split()))
+pygame.mixer.music.play(0)
 board = Board(size[0], size[1])
-board.set_view(25, 15, 29)
+board.set_view(100, 100, 50)
 screen = pygame.display.set_mode(((board.get_values()[1] * 2) + (size[0] * board.get_values()[0]),
                                   (board.get_values()[2] * 2) + (size[1] * board.get_values()[0])))
+font_1 = pygame.font.Font(None, board.get_values()[0] // 2)
+text_1 = font_1.render("Ход крестиков", True, (255, 255, 255))
+font_2 = pygame.font.Font(None, board.get_values()[0] // 2)
+text_2 = font_2.render("Ход ноликов", True, (255, 255, 255))
+text_x = board.get_values()[1]
+text_y = board.get_values()[2] + (board.get_values()[0] * size[1])
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -76,11 +87,23 @@ while running:
                             flag = True
                             sign = True
             if not flag:
-                print('Тут уже нельзя рисовать.', end='\n\n')
+                print('Тут уже нельзя рисовать.')
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DELETE:
                 ban_list = []
                 sign = True
                 screen.fill((0, 0, 0))
+            if event.key == pygame.K_UP:
+                vol += 0.1
+                pygame.mixer.music.set_volume(vol)
+            if event.key == pygame.K_DOWN:
+                vol -= 0.1
+                pygame.mixer.music.set_volume(vol)
     board.render(screen)
+    if sign:
+        pygame.draw.rect(screen, (0, 0, 0), (text_x, text_y, text_1.get_width(), text_2.get_height() + 5))
+        screen.blit(text_1, (text_x, text_y))
+    else:
+        pygame.draw.rect(screen, (0, 0, 0), (text_x, text_y, text_1.get_width(), text_2.get_height() + 5))
+        screen.blit(text_2, (text_x, text_y))
     pygame.display.flip()
